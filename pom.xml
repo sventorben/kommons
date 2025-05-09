@@ -51,13 +51,13 @@
         <maven.compiler.release>17</maven.compiler.release>
 
         <!-- For compilation -->
-        <version.keycloak>26.2.1</version.keycloak>
+        <version.keycloak>26.2.4</version.keycloak>
 
         <!-- For compatibility tests -->
         <keycloak.version>${version.keycloak}</keycloak.version>
 
         <version.mockito>5.17.0</version.mockito>
-        <version.testcontainers>1.20.6</version.testcontainers>
+        <version.testcontainers>1.21.0</version.testcontainers>
     </properties>
 
     <build>

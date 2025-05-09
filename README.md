@@ -3,7 +3,7 @@
 Flexible Keycloak SPI tools and extensions — modular, production-ready, and developer-friendly.
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/sventorben/keycloak-kommons?sort=semver)
-![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.2.0-blue)
+![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.2.4-blue)
 ![GitHub Release Date](https://img.shields.io/github/release-date-pre/sventorben/keycloak-kommons)
 ![Github Last Commit](https://img.shields.io/github/last-commit/sventorben/keycloak-kommons)
 
