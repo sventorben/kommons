@@ -29,6 +29,8 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
 
     private static final Logger LOG = Logger.getLogger(OidcOrgsGroupMapperFactory.class);
 
+    private static final String PROVIDER_ID = "kommons-orgs-group-mapper";
+
     private static final String ROOT_GROUP_NAME = "organizations";
 
     private static final String CONFIG_PREFIX_GROUPS = "prefix.groups.with.organization";
@@ -85,7 +87,7 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
 
     @Override
     public String getId() {
-        return "kommons-orgs-group-mapper";
+        return PROVIDER_ID;
     }
 
     private Stream<OrganizationModel> resolveFromRequestedScopes(KeycloakSession session, UserSessionModel userSession, ClientSessionContext context) {

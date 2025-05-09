@@ -14,3 +14,8 @@ Flexible Keycloak SPI tools and extensions — modular, production-ready, and de
 > ⚠️ **WARNING: This project is not production-ready!**
 > While our long-term goal is to make **keycloak-kommons** a reliable and production-grade library, this repository is currently in an early **sandbox** phase.
 > Use at your own risk — **not recommended for production environments** at this time.
+
+
+## Documentation
+
+Please refer to the [documentation website](https://sventorben.github.io/keycloak-kommons/) for instructions on installation, configuration, features, and general usage.
