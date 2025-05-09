@@ -120,7 +120,6 @@
                 <version>3.4.2</version>
                 <configuration>
                     <archive>
-                        <manifestFile>src${file.separator}main${file.separator}resources${file.separator}META-INF${file.separator}MANIFEST.MF</manifestFile>
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>

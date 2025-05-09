@@ -1,4 +1,10 @@
-# Keycloak Kommons
+---
+layout: default
+title: Introduction
+nav_order: 1
+---
+
+# Keycloak Kommons - Introduction
 
 Flexible Keycloak SPI tools and extensions — modular, production-ready, and developer-friendly.
 
@@ -14,3 +20,5 @@ Flexible Keycloak SPI tools and extensions — modular, production-ready, and de
 > ⚠️ **WARNING: This project is not production-ready!**
 > While our long-term goal is to make **keycloak-kommons** a reliable and production-grade library, this repository is currently in an early **sandbox** phase.
 > Use at your own risk — **not recommended for production environments** at this time.
+
+

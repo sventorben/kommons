@@ -1,0 +1,28 @@
+remote_theme: just-the-docs/just-the-docs
+
+title: 'Keycloak Kommons'
+description: Flexible Keycloak SPI tools and extensions — modular, production-ready, and developer-friendly.
+url: 'https://sventorben.github.io'
+aux_links:
+  Author: 'https://sventorben.de'
+  Github: 'https://github.com/sventorben/keycloak-kommons'
+# External navigation links
+nav_external_links:
+  - title: Release notes
+    url: https://github.com/sventorben/keycloak-kommons/releases
+    hide_icon: false
+  - title: Contributing
+    url: https://github.com/sventorben/keycloak-kommons/blob/main/CONTRIBUTING.md
+    hide_icon: false
+  - title: Issue tracker
+    url: https://github.com/sventorben/keycloak-kommons/issues
+    hide_icon: false
+search_enabled: true
+color_scheme: dark
+callouts:
+  warning:
+    title: Warning
+    color: yellow
+  note:
+    title: Note
+    color: blue
