@@ -9,7 +9,7 @@ Flexible tools and extensions for Keycloak — modular, production-ready, and de
 
 ![CI build](https://github.com/sventorben/kommons/actions/workflows/buildAndTest.yml/badge.svg)
 ![open issues](https://img.shields.io/github/issues/sventorben/kommons)
-[![CodeScene Code Health](https://codescene.io/projects/66785/status-badges/code-health)](https://codescene.io/projects/66785)
+[![CodeScene Code Health](https://codescene.io/projects/66785/status-badges/average-code-health)](https://codescene.io/projects/66785)
 
 > ⚠️ **WARNING: This project is not production-ready!**
 > While my long-term goal is to make **kommons** a reliable and production-grade library, this repository is currently in an early **sandbox** phase.
