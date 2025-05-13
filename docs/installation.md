@@ -6,7 +6,7 @@ nav_order: 2
 
 # 🚀 Installation Instructions
 
-This guide explains how to install and configure the **Keycloak Kommons** extensions in your Keycloak server.
+This guide explains how to install and configure the **Kommons** extensions in your Keycloak server.
 
 No need to clone or build anything — each release includes a prebuilt, ready-to-use JAR.
 
@@ -14,9 +14,9 @@ No need to clone or build anything — each release includes a prebuilt, ready-t
 
 ## 📥 1. Download the JAR
 
-Visit the [Releases](https://github.com/sventorben/keycloak-kommons/releases) page and download the JAR that matches your Keycloak version.
+Visit the [Releases](https://github.com/sventorben/kommons/releases) page and download the JAR that matches your Keycloak version.
 
-> 📌 Example: If you use **Keycloak `26.2.4`**, download **`keycloak-kommons-26.x.x.jar`**.
+> 📌 Example: If you use **Keycloak `26.2.4`**, download **`kommons-26.x.x.jar`**.
 
 ---
 
@@ -25,7 +25,7 @@ Visit the [Releases](https://github.com/sventorben/keycloak-kommons/releases) pa
 Copy the downloaded JAR into your Keycloak installation:
 
 ```bash
-cp keycloak-kommons-26.x.x.jar $KEYCLOAK_HOME/providers/
+cp kommons-26.x.x.jar $KEYCLOAK_HOME/providers/
 ```
 
 Restart your Keycloak server:
@@ -49,7 +49,7 @@ For Docker-based setups, mount or copy the JAR to:
 ```
 
 You may want to check out this example:
-👉 [docker-compose.yml](https://github.com/sventorben/keycloak-kommons/blob/main/docker-compose.yml)
+👉 [docker-compose.yml](https://github.com/sventorben/kommons/blob/main/docker-compose.yml)
 
 ---
 
@@ -71,7 +71,7 @@ Each `X.b.c` release of the extension is compiled and tested against Keycloak `X
 ## ✅ What You Can Expect
 
 - Keycloak’s SPIs are generally stable, so minor version mismatches (e.g., `24.0.0` vs `24.0.2`) are usually fine.
-- Check the [compatibility test matrix](https://github.com/sventorben/keycloak-kommons/actions/workflows/matrix.yml) for current tested versions.
+- Check the [compatibility test matrix](https://github.com/sventorben/kommons/actions/workflows/matrix.yml) for current tested versions.
 - Or simply try it — it often works across patch versions.
 
 ---
@@ -99,6 +99,6 @@ Use the corresponding extension version following the same rules above.
 - Confirm that Keycloak loaded the extension (check logs)
 - Validate your configuration settings in the Keycloak Admin Console
 - Double-check you're using the correct versioned JAR for your Keycloak version
-- Still stuck? [Open an issue](https://github.com/sventorben/keycloak-kommons/issues)
+- Still stuck? [Open an issue](https://github.com/sventorben/kommons/issues)
 
 ---

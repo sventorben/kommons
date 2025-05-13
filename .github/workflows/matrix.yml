@@ -25,6 +25,6 @@ jobs:
       - name: Clean and compile
         run: mvn -B -U clean test-compile --file pom.xml
       - name: Download extension
-        run: curl -L -o target/keycloak-kommons.jar https://github.com/sventorben/keycloak-kommons/releases/download/v${{ matrix.extension_version }}/keycloak-kommons.jar
+        run: curl -L -o target/kommons.jar https://github.com/sventorben/kommons/releases/download/v${{ matrix.extension_version }}/kommons.jar
       - name: Compatibility tests
         run: mvn -B -U failsafe:integration-test failsafe:verify --file pom.xml -Dkeycloak.version=${{ matrix.keycloak_version }} -DuseJar=true

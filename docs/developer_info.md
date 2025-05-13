@@ -17,7 +17,7 @@ nav_order: 4
 
 ## Not a Developer Library
 
-**Keycloak Kommons is intentionally _not_ designed to be a developer-facing library or framework.** It is a collection of ready-to-use, production-quality Keycloak extensions packaged as JARs, meant to be deployed as-is.
+** *Kommons* is intentionally _not_ designed to be a developer-facing library or framework.** It is a collection of ready-to-use, production-quality Keycloak extensions packaged as JARs, meant to be deployed as-is.
 
 These components are provided for operational use in Keycloak servers—not for extension, subclassing, or programmatic integration by other developers.
 
@@ -25,7 +25,7 @@ These components are provided for operational use in Keycloak servers—not for 
 
 ## Design Philosophy
 
-Keycloak Kommons follows these principles:
+*Kommons* follows these principles:
 
 - ✅ **Use it, don’t build on it**: The extensions are meant to be _used_, not consumed as APIs or SPIs.
 - ❌ **No extension support**: No part of this project is designed for you to subclass or extend.
@@ -55,6 +55,6 @@ If you're looking for something to build on or extend via SPI, this is **not** t
 
 ## Conclusion
 
-Keycloak Kommons is built to solve specific, real-world problems in a robust and focused way. If you need a flexible SPI for building your own Keycloak tools, you may want to look into alternative projects or build something custom.
+*Kommon*s is built to solve specific, real-world problems in a robust and focused way. If you need a flexible SPI for building your own Keycloak tools, you may want to look into alternative projects or build something custom.
 
 > TL;DR: **Use the JARs. Don't code against them.**

@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.sventorben.keycloak</groupId>
-    <artifactId>keycloak-kommons</artifactId>
+    <artifactId>kommons</artifactId>
     <version>26.0.0-SNAPSHOT</version>
 
-    <name>Keycloak Kommons</name>
-    <description>Flexible Keycloak SPI tools and extensions — modular, production-ready, and developer-friendly.</description>
+    <name>Kommons</name>
+    <description>Flexible tools and extensions for Keycloak — modular, production-ready, and developer-friendly.</description>
 
     <packaging>jar</packaging>
 
@@ -24,15 +24,15 @@
     </developers>
 
     <scm>
-        <connection>scm:git:ssh://git@github.com:sventorben/keycloak-kommons.git</connection>
-        <developerConnection>scm:git:https://github.com/sventorben/keycloak-kommons.git
+        <connection>scm:git:ssh://git@github.com:sventorben/kommons.git</connection>
+        <developerConnection>scm:git:https://github.com/sventorben/kommons.git
         </developerConnection>
-        <url>https://github.com/sventorben/keycloak-kommons.git</url>
+        <url>https://github.com/sventorben/kommons.git</url>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
-        <url>https://github.com/sventorben/keycloak-kommons/issues</url>
+        <url>https://github.com/sventorben/kommons/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
@@ -40,7 +40,7 @@
         <repository>
             <id>github</id>
             <name>GitHub sventorben Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/sventorben/keycloak-kommons</url>
+            <url>https://maven.pkg.github.com/sventorben/kommons</url>
         </repository>
     </distributionManagement>
 

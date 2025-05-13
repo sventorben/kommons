@@ -15,5 +15,5 @@ services:
       - 8443:8443
       - 8787:8787
     volumes:
-    - ./target/keycloak-kommons.jar:/opt/keycloak/providers/keycloak-kommons.jar
+    - ./target/kommons.jar:/opt/keycloak/providers/kommons.jar
     - ./src/test/resources/:/opt/keycloak/data/import
