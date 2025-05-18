@@ -4,7 +4,7 @@
 
     <groupId>de.sventorben.keycloak</groupId>
     <artifactId>kommons</artifactId>
-    <version>26.0.0-alpha.1</version>
+    <version>26.0.0-SNAPSHOT</version>
 
     <name>Kommons</name>
     <description>Flexible tools and extensions for Keycloak — modular, production-ready, and developer-friendly.</description>
@@ -28,7 +28,7 @@
         <developerConnection>scm:git:https://github.com/sventorben/kommons.git
         </developerConnection>
         <url>https://github.com/sventorben/kommons.git</url>
-        <tag>v26.0.0-alpha.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
