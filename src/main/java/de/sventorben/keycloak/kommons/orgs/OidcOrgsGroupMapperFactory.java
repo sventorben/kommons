@@ -13,6 +13,7 @@ import org.keycloak.models.*;
 import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.models.utils.RepresentationToModel;
 import org.keycloak.organization.OrganizationProvider;
+import org.keycloak.organization.protocol.mappers.oidc.OrganizationMembershipMapper;
 import org.keycloak.organization.protocol.mappers.oidc.OrganizationScope;
 import org.keycloak.protocol.oidc.mappers.*;
 import org.keycloak.provider.EnvironmentDependentProviderFactory;
@@ -33,15 +34,13 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
 
     private static final String ROOT_GROUP_NAME = "organizations";
 
-    private static final String CONFIG_PREFIX_GROUPS = "prefix.groups.with.organization";
-    private static final String CONFIG_FLAT_GROUPS = "flat.group.claim";
+    private static final String CONFIG_PREFIX_GROUPS = "kommons.prefix.groups.with.organization";
+    private static final String CONFIG_FLAT_GROUPS = "kommons.emit.flattened.group.claim";
 
     private static final String CLAIM_ORGANIZATION = "organization";
     private static final String CLAIM_GROUPS = "groups";
 
-
     public OidcOrgsGroupMapperFactory() {
-
     }
 
     @Override
@@ -104,11 +103,19 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
 
     @Override
     protected void setClaim(IDToken token, ProtocolMapperModel mappingModel, UserSessionModel userSession, KeycloakSession keycloakSession, ClientSessionContext clientSessionCtx) {
-
         RealmModel realm = keycloakSession.getContext().getRealm();
         if (!realm.isOrganizationsEnabled()) {
             return;
         }
+
+        String claimName = keycloakSession.getContext().getRealm().getClientScopesStream()
+            .filter(scope -> scope.getProtocolMappersStream().anyMatch(mapper -> mapper.getId().equals(mappingModel.getId())))
+            .flatMap(scope -> scope.getProtocolMappersStream())
+            .filter(mapper -> mapper.getProtocolMapper().equals(OrganizationMembershipMapper.PROVIDER_ID))
+            .findFirst()
+            .map(mapper -> mapper.getConfig().get("claim.name"))
+            .orElse(CLAIM_ORGANIZATION);
+
 
         final GroupModel organizations = keycloakSession.groups().getGroupByName(realm, null, ROOT_GROUP_NAME);
         if (organizations == null) {
@@ -126,14 +133,15 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
         List<GroupModel> orgGroups = organizations.getSubGroupsStream()
             .filter(tenantRootGroup -> requestedOrganizationAliases.contains(tenantRootGroup.getName())).toList();
         ObjectNode organizationClaims = new ObjectMapper().createObjectNode();
-        if (token.getOtherClaims().containsKey("organization")) {
-            Object existingClaim = token.getOtherClaims().get("organization");
+        if (token.getOtherClaims().containsKey(claimName)) {
+            Object existingClaim = token.getOtherClaims().get(claimName);
             if (existingClaim != null && !((JsonNode) existingClaim).isObject()) {
+                // TODO: log warning and return
                 return;
             }
             organizationClaims = (ObjectNode) existingClaim;
         } else {
-            token.setOtherClaims(CLAIM_ORGANIZATION, organizationClaims);
+            token.setOtherClaims(claimName, organizationClaims);
         }
 
         boolean prefixGroupNames = isPrefixGroups(mappingModel);
@@ -168,8 +176,8 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
 
         if (flatGroupClaim && flatGroups.size() > 0) {
             token.setOtherClaims(CLAIM_GROUPS, flatGroups);
-        } else if (!token.getOtherClaims().containsKey(CLAIM_ORGANIZATION)) {
-            token.setOtherClaims(CLAIM_ORGANIZATION, organizationClaims);
+        } else if (!token.getOtherClaims().containsKey(claimName)) {
+            token.setOtherClaims(claimName, organizationClaims);
         }
     }
 

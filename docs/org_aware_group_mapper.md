@@ -150,12 +150,12 @@ This mapper supports an optional configuration to **prefix group names** with th
 
 ### 🔑 Setting
 
-| Field                                      | Value                  |
-|-------------------------------------------|------------------------|
+| Field                                      | Value                                        |
+|-------------------------------------------|----------------------------------------------|
 | **Option**                                | `Prefix group names with organization alias` |
-| **Property Key**                          | `prefix.groups.with.organization` |
-| **Type**                                  | Boolean                |
-| **Default**                               | `false`                |
+| **Property Key**                          | `kommons.prefix.groups.with.organization`    |
+| **Type**                                  | Boolean                                      |
+| **Default**                               | `false`                                      |
 
 ---
 
@@ -219,12 +219,12 @@ By default, this mapper writes organization-scoped group memberships into a stru
 
 ### 🔧 Setting
 
-| Field                                      | Value                      |
-|-------------------------------------------|----------------------------|
-| **Option**                                | `Emit flattened group claim` |
-| **Property Key**                          | `flat.group.claim`         |
-| **Type**                                  | Boolean                    |
-| **Default**                               | `false`                    |
+| Field                                     | Value                                |
+|-------------------------------------------|--------------------------------------|
+| **Option**                                | `Emit flattened group claim`         |
+| **Property Key**                          | `kommons.emit.flattened.group.claim` |
+| **Type**                                  | Boolean                              |
+| **Default**                               | `false`                              |
 
 ---
 
