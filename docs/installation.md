@@ -16,7 +16,7 @@ No need to clone or build anything — each release includes a prebuilt, ready-t
 
 Visit the [Releases](https://github.com/sventorben/kommons/releases) page and download the JAR that matches your Keycloak version.
 
-> 📌 Example: If you use **Keycloak `26.2.4`**, download **`kommons-26.x.x.jar`**.
+> 📌 Example: If you use **Keycloak `26.2.5`**, download **`kommons-26.x.x.jar`**.
 
 ---
 

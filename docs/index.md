@@ -9,7 +9,7 @@ nav_order: 1
 Flexible tools and extensions for Keycloak — modular, production-ready, and developer-friendly.
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/sventorben/kommons?sort=semver)
-![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.2.4-blue)
+![Keycloak Dependency Version](https://img.shields.io/badge/Keycloak-26.2.5-blue)
 ![GitHub Release Date](https://img.shields.io/github/release-date-pre/sventorben/kommons)
 ![Github Last Commit](https://img.shields.io/github/last-commit/sventorben/kommons)
 

@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        keycloak_version: [ 26.2.4, latest, nightly ]
+        keycloak_version: [ 26.2.4, 26.2.5, latest, nightly ]
         extension_version: [ 26.0.0 ]
     name: KC ${{ matrix.keycloak_version }}, Extension ${{ matrix.extension_version }}
     steps:
