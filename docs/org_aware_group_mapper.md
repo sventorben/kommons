@@ -86,14 +86,13 @@ If not set:
 2. Navigate to **Client Scopes** or **Protocol Mappers**
 3. Click **Create** and fill out the form as follows:
 
-   | Field                    | Value                                         |
-      |--------------------------|-----------------------------------------------|
-   | **Name**                | `Organization-aware Group Mapper`                            |
-   | **Mapper Type**         | `Organization-scoped Group Mapper`            |
-   | **Token Claim Name**    | `organization`                                |
-   | **Add to ID token**     | ✅                                             |
-   | **Add to access token** | ✅                                             |
-   | **Add to userinfo**     | ✅                                             |
+   | Field                    | Value                                          |
+   |--------------------------|------------------------------------------------|
+   | **Name**                | `Organization-aware Group Mapper`               |
+   | **Mapper Type**         | `Organization-scoped Group Mapper`              |
+   | **Add to ID token**     | ✅                                              |
+   | **Add to access token** | ✅                                              |
+   | **Add to userinfo**     | ✅                                              |
 
 4. Click **Save**
 
