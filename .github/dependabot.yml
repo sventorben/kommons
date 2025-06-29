@@ -20,6 +20,7 @@ updates:
   # Maintain dependencies for maven
   - package-ecosystem: "maven"
     directory: "/"
+    dependency-type: "development"
     schedule:
       interval: "daily"
     assignees:
@@ -27,3 +28,22 @@ updates:
     commit-message:
       include: "scope"
       prefix: "chore"
+    labels:
+        - "dependencies"
+        - "java"
+        - "ignore-for-release"
+
+    # Maintain dependencies for maven
+  - package-ecosystem: "maven"
+    directory: "/"
+    dependency-type: "production"
+    schedule:
+        interval: "daily"
+    assignees:
+        - "sventorben"
+    commit-message:
+        include: "scope"
+        prefix: "chore"
+    labels:
+        - "dependencies"
+        - "java"
