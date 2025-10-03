@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        keycloak_version: [ 26.2.5, 26.3.0, latest, nightly ]
+        keycloak_version: [ 26.2.5, 26.3.5, 26.4.0, latest, nightly ]
         extension_version: [ 26.0.0 ]
     name: KC ${{ matrix.keycloak_version }}, Extension ${{ matrix.extension_version }}
     steps:
@@ -17,7 +17,7 @@ jobs:
         with:
             ref: v${{ matrix.extension_version }}
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 17
