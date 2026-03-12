@@ -1,1 +1,2 @@
 de.sventorben.keycloak.kommons.orgs.OidcOrgsGroupMapperFactory
+de.sventorben.keycloak.kommons.oidc.MultiClientAttributesClaimMapper
