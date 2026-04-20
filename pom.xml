@@ -163,7 +163,7 @@
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-bom</artifactId>
-                <version>1.60.1</version><!-- needs to be aligned with the quarkus version used by KC -->
+                <version>1.61.0</version><!-- needs to be aligned with the quarkus version used by KC -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
