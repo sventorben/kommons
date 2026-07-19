@@ -29,7 +29,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        keycloak_version: [ 26.2.5, 26.3.5, 26.4.7, 26.5.7, 26.6.1, latest ]
+        # Keycloak 26.7.0 renamed OrganizationScope.SINGLE to SPECIFIC, so a jar built against
+        # 26.7.0 hits NoSuchFieldError on older servers. This workflow builds the current sources,
+        # hence 26.7.0 is the floor here. matrix.yml keeps the full range: it exercises previously
+        # released extension jars, which were compiled against the Keycloak they run on.
+        keycloak_version: [ 26.7.0, latest ]
         experimental: [false]
         include:
             - keycloak_version: nightly
