@@ -32,10 +32,12 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
 
     private static final String PROVIDER_ID = "kommons-orgs-group-mapper";
 
-    private static final String ROOT_GROUP_NAME = "organizations";
 
     private static final String CONFIG_PREFIX_GROUPS = "kommons.prefix.groups.with.organization";
     private static final String CONFIG_FLAT_GROUPS = "kommons.emit.flattened.group.claim";
+    private static final String CONFIG_GROUP_SOURCE = "kommons.orgs.group.source";
+    private static final String CONFIG_GROUP_LABEL = "kommons.orgs.group.label";
+    private static final String CONFIG_PREFIX_SEPARATOR = "kommons.orgs.prefix.separator";
 
     private static final String CLAIM_ORGANIZATION = "organization";
     private static final String CLAIM_GROUPS = "groups";
@@ -72,16 +74,59 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
         prefixGroupsProp.setRequired(true);
         properties.add(prefixGroupsProp);
 
+        ProviderConfigProperty prefixSeparatorProp = new ProviderConfigProperty();
+        prefixSeparatorProp.setName(CONFIG_PREFIX_SEPARATOR);
+        prefixSeparatorProp.setLabel("Separator between organization alias and group");
+        prefixSeparatorProp.setHelpText("Used only when prefixing is enabled. Defaults to '"
+            + OrganizationGroups.DEFAULT_PREFIX_SEPARATOR + "'. Pick something that cannot occur in an alias or a "
+            + "group name, for example ':' or '::', if consumers need to split the value back apart. Group names "
+            + "containing the separator make 'acme" + OrganizationGroups.DEFAULT_PREFIX_SEPARATOR
+            + "dev" + OrganizationGroups.DEFAULT_PREFIX_SEPARATOR + "leads' ambiguous.");
+        prefixSeparatorProp.setType(ProviderConfigProperty.STRING_TYPE);
+        prefixSeparatorProp.setDefaultValue(OrganizationGroups.DEFAULT_PREFIX_SEPARATOR);
+        prefixSeparatorProp.setRequired(false);
+        properties.add(prefixSeparatorProp);
+
         ProviderConfigProperty flatGroupsProp = new ProviderConfigProperty();
         flatGroupsProp.setName(CONFIG_FLAT_GROUPS);
         flatGroupsProp.setLabel("Emit flattened group claim");
         flatGroupsProp.setHelpText("Places all group names into a top-level 'groups' claim instead of nesting them by organization.");
         flatGroupsProp.setType(ProviderConfigProperty.BOOLEAN_TYPE);
         flatGroupsProp.setDefaultValue("false");
-        prefixGroupsProp.setRequired(true);
+        flatGroupsProp.setRequired(true);
         properties.add(flatGroupsProp);
 
+        ProviderConfigProperty groupSourceProp = new ProviderConfigProperty();
+        groupSourceProp.setName(CONFIG_GROUP_SOURCE);
+        groupSourceProp.setLabel("Where to read groups from");
+        groupSourceProp.setHelpText("'auto': use Keycloak's organization groups when the organization has any, "
+            + "otherwise fall back to the '" + OrganizationGroups.CONVENTION_ROOT_GROUP + "' group tree. "
+            + "'organization-groups': only Keycloak's organization groups. "
+            + "'convention': only the '" + OrganizationGroups.CONVENTION_ROOT_GROUP + "' group tree. "
+            + "'auto' is resolved per organization, so a realm can be migrated one organization at a time.");
+        groupSourceProp.setType(ProviderConfigProperty.LIST_TYPE);
+        groupSourceProp.setOptions(List.of("auto", "organization-groups", "convention"));
+        groupSourceProp.setDefaultValue("auto");
+        groupSourceProp.setRequired(true);
+        properties.add(groupSourceProp);
+
+        ProviderConfigProperty groupLabelProp = new ProviderConfigProperty();
+        groupLabelProp.setName(CONFIG_GROUP_LABEL);
+        groupLabelProp.setLabel("How to render a group");
+        groupLabelProp.setHelpText("'name': the name of the group itself, for example 'leads'. "
+            + "'path': the path of the group within its organization, for example 'engineering/leads'. "
+            + "Only organization groups can be nested, so for the group tree convention both are the same.");
+        groupLabelProp.setType(ProviderConfigProperty.LIST_TYPE);
+        groupLabelProp.setOptions(List.of("name", "path"));
+        groupLabelProp.setDefaultValue("name");
+        groupLabelProp.setRequired(true);
+        properties.add(groupLabelProp);
+
         return properties;
+    }
+
+    private String getConfig(ProtocolMapperModel model, String key) {
+        return model.getConfig() == null ? null : model.getConfig().get(key);
     }
 
     @Override
@@ -117,26 +162,17 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
             .orElse(CLAIM_ORGANIZATION);
 
 
-        final GroupModel organizations = keycloakSession.groups().getGroupByName(realm, null, ROOT_GROUP_NAME);
-        if (organizations == null) {
-            ClientModel client = clientSessionCtx.getClientSession().getClient();
-            LOG.warnf("Root group `%s` does not exist but mapper configured in realm %s, client %", ROOT_GROUP_NAME, client.getRealm().getName(), client.getName());
-            return;
-        }
-
         String orgId = clientSessionCtx.getClientSession().getNote(OrganizationModel.ORGANIZATION_ATTRIBUTE);
-        Stream<OrganizationModel> requestedOrganizations;
-        requestedOrganizations = resolveRequestedOrganizations(userSession, keycloakSession, clientSessionCtx, orgId);
+        List<OrganizationModel> requestedOrganizations =
+            resolveRequestedOrganizations(userSession, keycloakSession, clientSessionCtx, orgId)
+                .filter(Objects::nonNull)
+                .toList();
 
-        final List<String> requestedOrganizationAliases = requestedOrganizations.map(OrganizationModel::getAlias).toList();
-
-        List<GroupModel> orgGroups = organizations.getSubGroupsStream()
-            .filter(tenantRootGroup -> requestedOrganizationAliases.contains(tenantRootGroup.getName())).toList();
         ObjectNode organizationClaims = new ObjectMapper().createObjectNode();
         if (token.getOtherClaims().containsKey(claimName)) {
             Object existingClaim = token.getOtherClaims().get(claimName);
             if (existingClaim != null && !((JsonNode) existingClaim).isObject()) {
-                // TODO: log warning and return
+                LOG.warnf("Claim '%s' is not an object, not adding organization groups to it", claimName);
                 return;
             }
             organizationClaims = (ObjectNode) existingClaim;
@@ -144,28 +180,34 @@ public final class OidcOrgsGroupMapperFactory extends AbstractOIDCProtocolMapper
             token.setOtherClaims(claimName, organizationClaims);
         }
 
-        boolean prefixGroupNames = isPrefixGroups(mappingModel);
         boolean flatGroupClaim = isFlatGroups(mappingModel);
+        OrganizationGroups.Rendering rendering = new OrganizationGroups.Rendering(
+            OrganizationGroups.Source.from(getConfig(mappingModel, CONFIG_GROUP_SOURCE)),
+            OrganizationGroups.Label.from(getConfig(mappingModel, CONFIG_GROUP_LABEL)),
+            OrganizationGroups.AliasPrefix.of(isPrefixGroups(mappingModel),
+                getConfig(mappingModel, CONFIG_PREFIX_SEPARATOR)));
 
         ArrayNode flatGroups = new ObjectMapper().createArrayNode();
 
-        for (GroupModel orgGroup : orgGroups) {
-            String orgAlias = orgGroup.getName();
+        for (OrganizationModel organization : requestedOrganizations) {
+            List<String> groupLabels = OrganizationGroups.labelsFor(
+                keycloakSession, organization, userSession.getUser(), rendering);
 
-            List<String> userGroupNames = orgGroup.getSubGroupsStream()
-                .filter(group -> userSession.getUser().isMemberOf(group))
-                .map(group -> prefixGroupNames ? orgAlias + "_" + group.getName() : group.getName())
-                .toList();
+            if (groupLabels == null) {
+                // The organization is not represented in the selected layout at all.
+                continue;
+            }
 
             if (flatGroupClaim) {
-                userGroupNames.forEach(flatGroups::add);
+                groupLabels.forEach(flatGroups::add);
             } else {
+                String orgAlias = organization.getAlias();
                 ObjectNode orgClaims = organizationClaims.has(orgAlias)
                     ? (ObjectNode) organizationClaims.get(orgAlias)
                     : new ObjectMapper().createObjectNode();
 
                 ArrayNode groupsForOrg = new ObjectMapper().createArrayNode();
-                userGroupNames.stream().map(TextNode::new).forEach(groupsForOrg::add);
+                groupLabels.stream().map(TextNode::new).forEach(groupsForOrg::add);
                 orgClaims.set(CLAIM_GROUPS, groupsForOrg);
 
                 if (!organizationClaims.has(orgAlias)) {
