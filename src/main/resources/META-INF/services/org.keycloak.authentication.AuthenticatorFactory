@@ -1,1 +1,2 @@
 de.sventorben.keycloak.kommons.auth.UnusualLoginTimeConditionalAuthenticatorFactory
+de.sventorben.keycloak.kommons.orgs.OrganizationScopeInjectorAuthenticatorFactory
