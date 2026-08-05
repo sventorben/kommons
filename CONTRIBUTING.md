@@ -17,6 +17,33 @@ I kindly ask anyone who wants to contribute to this project to follow some basic
 10. Include some documentation/extend the README
 11. PR must pass DCO check
 
+## Using AI Assistants
+
+Using an AI assistant to write, refactor or document code for this project is absolutely fine. I use them myself.
+There is no need to declare which tools you used, and a pull request will never be rejected for having been written
+with AI help.
+
+What matters is this: **you are the author, and you own every line you submit.** The assistant is not a contributor,
+it is a tool you are responsible for. Concretely, before you open a pull request:
+
+- **Understand the code.** You should be able to explain what every line does and why it is there. If a reviewer asks
+  "why this approach?" and the honest answer is "that is what the model produced", it is not ready.
+- **Verify it against reality.** Language models invent APIs, configuration keys and behaviour that look entirely
+  plausible. Check the code against the actual Keycloak version this project targets — read the sources, run it, or
+  both. "It compiled" is not verification.
+- **Test it, and mean it.** Tests that assert whatever the implementation happens to do are worse than no tests. A
+  test should fail when the behaviour is wrong.
+- **Make the documentation true.** Documentation describing behaviour the code does not have is actively harmful, and
+  it is a very common failure mode of generated changes.
+- **Review it as your own work.** Read the whole diff before you push it, not just the parts you typed.
+
+Put plainly: I am happy to review code you produced with an AI. I am not willing to review code that nobody has
+reviewed yet. Sending a large generated change you have not read, understood and checked shifts that work onto me,
+and I will close it and ask you to come back once you have.
+
+This is also exactly what signing off your work means, see below: the DCO is you certifying that you have the right
+to submit this contribution and that you stand behind it.
+
 ## Sign off Your Work
 
 The Developer Certificate of Origin (DCO) is a lightweight way for contributors to certify that they wrote or otherwise have the right to submit the code they are contributing to the project. Here is the full text of the [DCO](http://developercertificate.org/). Contributors must sign-off that they adhere to these requirements by adding a `Signed-off-by` line to commit messages.
