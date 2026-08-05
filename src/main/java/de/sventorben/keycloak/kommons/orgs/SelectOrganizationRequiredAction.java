@@ -48,7 +48,33 @@ final class SelectOrganizationRequiredAction implements RequiredActionProvider {
         }
 
         AuthenticationSessionModel authSession = context.getAuthenticationSession();
+        boolean bindToSsoSession = OrganizationSessionBinding.isEnabled(context.getRealm());
 
+        if (bindToSsoSession && adoptBoundOrganization(context, authSession)) {
+            // The session is already bound, so there is nothing left to choose or to record.
+            return;
+        }
+
+        promptWhenNeeded(context, authSession);
+
+        if (bindToSsoSession) {
+            bindSelection(context, authSession);
+        }
+    }
+
+    /**
+     * Applies the organization the single sign-on session is bound to. The injector authenticator normally did this
+     * before Keycloak's organization handling ran; doing it again here also covers protocols and setups where the
+     * injector is not in the flow.
+     */
+    private boolean adoptBoundOrganization(RequiredActionContext context, AuthenticationSessionModel authSession) {
+        OrganizationModel bound = OrganizationSessionBinding.boundOrganization(
+            context.getSession(), context.getRealm(), context.getUser());
+
+        return OrganizationSessionBinding.applyTo(authSession, bound);
+    }
+
+    private void promptWhenNeeded(RequiredActionContext context, AuthenticationSessionModel authSession) {
         if (OIDCLoginProtocol.LOGIN_PROTOCOL.equals(authSession.getProtocol())) {
             // OpenID Connect is covered by Keycloak's own organization authenticator, which drives the selection from
             // the organization scope. Triggering here as well would ask the user twice.
@@ -62,9 +88,23 @@ final class SelectOrganizationRequiredAction implements RequiredActionProvider {
         List<OrganizationModel> organizations = memberships(context);
 
         if (organizations.size() == 1) {
-            select(authSession, organizations.get(0));
+            select(context, authSession, organizations.get(0));
         } else if (organizations.size() > 1) {
             authSession.addRequiredAction(SelectOrganizationRequiredActionFactory.PROVIDER_ID);
+        }
+    }
+
+    /**
+     * Records an organization that was already selected for this client session, so later client sessions in the
+     * same single sign-on session adopt it. Covers the OpenID Connect case, where Keycloak's own authenticator did
+     * the selecting.
+     */
+    private void bindSelection(RequiredActionContext context, AuthenticationSessionModel authSession) {
+        OrganizationModel selected = OrganizationSessionBinding.resolve(context.getSession(),
+            authSession.getClientNote(OrganizationModel.ORGANIZATION_ATTRIBUTE), context.getUser());
+
+        if (selected != null) {
+            OrganizationSessionBinding.bind(authSession, selected);
         }
     }
 
@@ -90,13 +130,18 @@ final class SelectOrganizationRequiredAction implements RequiredActionProvider {
             return;
         }
 
-        select(context.getAuthenticationSession(), organization);
+        select(context, context.getAuthenticationSession(), organization);
         context.success();
     }
 
-    private void select(AuthenticationSessionModel authSession, OrganizationModel organization) {
+    private void select(RequiredActionContext context, AuthenticationSessionModel authSession,
+                        OrganizationModel organization) {
         authSession.setClientNote(OrganizationModel.ORGANIZATION_ATTRIBUTE, organization.getId());
-        LOG.debugf("Bound the session to organization '%s'", organization.getAlias());
+        LOG.debugf("Selected organization '%s' for this client session", organization.getAlias());
+
+        if (OrganizationSessionBinding.isEnabled(context.getRealm())) {
+            OrganizationSessionBinding.bind(authSession, organization);
+        }
     }
 
     /**

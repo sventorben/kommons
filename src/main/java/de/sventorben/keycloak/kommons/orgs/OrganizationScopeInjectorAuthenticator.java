@@ -6,6 +6,7 @@ import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.OrganizationModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
@@ -59,6 +60,8 @@ final class OrganizationScopeInjectorAuthenticator implements Authenticator {
 
         AuthenticationSessionModel authSession = context.getAuthenticationSession();
 
+        applySessionBinding(context, authSession);
+
         if (!OIDCLoginProtocol.LOGIN_PROTOCOL.equals(authSession.getProtocol())) {
             // Only OpenID Connect has a scope parameter. For SAML use the "Select Organization" required action.
             return;
@@ -83,6 +86,31 @@ final class OrganizationScopeInjectorAuthenticator implements Authenticator {
         authSession.setClientNote(OIDCLoginProtocol.SCOPE_PARAM, updatedScope);
 
         LOG.debugf("Injected organization scope '%s' for client %s", scopeName, client.getClientId());
+    }
+
+    /**
+     * Adopts the organization the single sign-on session is already bound to, before Keycloak's organization
+     * handling runs. This is what keeps a bound session from asking the user again for every new client, and it is
+     * why this authenticator has to sit ahead of the cookie authenticator.
+     *
+     * <p>Runs for every protocol, not just OpenID Connect. It is inert unless the binding is switched on, since no
+     * binding is ever recorded then.
+     */
+    private void applySessionBinding(AuthenticationFlowContext context, AuthenticationSessionModel authSession) {
+        if (!OrganizationSessionBinding.isEnabled(context.getRealm())) {
+            return;
+        }
+
+        if (authSession.getClientNote(OrganizationModel.ORGANIZATION_ATTRIBUTE) != null) {
+            return;
+        }
+
+        OrganizationModel bound = OrganizationSessionBinding.boundOrganization(
+            context.getSession(), context.getRealm(), context.getUser());
+
+        if (OrganizationSessionBinding.applyTo(authSession, bound)) {
+            LOG.debugf("Adopted organization '%s' from the bound SSO session", bound.getAlias());
+        }
     }
 
     /**

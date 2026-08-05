@@ -208,6 +208,14 @@ that reuses an existing single sign-on session, which makes this the one hook th
 The chosen organization is written to the `kc.org` client note — the very note Keycloak's browser flow uses. It
 reaches the authenticated client session through Keycloak's regular note transfer, which is protocol independent.
 
+### Configuration
+
+| Option | Key | Type | Default |
+|---|---|---|---|
+| Bind the organization to the SSO session | `kommons.orgs.bind.to.sso.session` | Boolean | `false` |
+
+See [Binding the organization to the SSO session](#-binding-the-organization-to-the-sso-session) below.
+
 ### Setup
 
 **Authentication → Required actions**, then set **Select Organization** to *Enabled*.
@@ -258,20 +266,51 @@ Two things to get right:
 The enforcer is the only piece that rejects anything, and it has no effect on SAML: SAML has no `scope` parameter, so
 there is nothing for it to validate.
 
+To bind the organization to the whole single sign-on session rather than to each client session, all three are
+needed regardless of protocol — the required action holds the switch and records the binding, the injector applies
+it before Keycloak asks. See [Binding the organization to the SSO session](#-binding-the-organization-to-the-sso-session).
+
+---
+
+## 🔗 Binding the organization to the SSO session
+
+By default Keycloak stores the selected organization in a **client** note, so the choice lives on the client session.
+Every token still names exactly one organization, but two clients in one single sign-on session can end up on two
+*different* organizations, and a user who is a member of several is asked again for every new client.
+
+Switching **Bind the organization to the SSO session** on changes that: the first selection is additionally recorded
+on the **user** session, and every later authentication in that session adopts it instead of asking again.
+
+| | Off (default) | On |
+|---|---|---|
+| Scope of a choice | one client session | the whole SSO session |
+| Two clients, one session | may differ | always identical |
+| Repeat prompt per client | yes | no |
+| Switching organization | new authorization request | requires a new session, i.e. a logout |
+
+### How it works
+
+- The **required action** records the selection as a user session note once it has been made, for every protocol. It
+  does this whether the choice came from its own screen (SAML) or from Keycloak's organization authenticator (OIDC).
+- The **injector authenticator** adopts an existing binding at the very start of the browser flow, before Keycloak's
+  organization handling runs, which is what suppresses the repeat prompt.
+- A binding is re-validated on every use. If the organization was deleted, disabled, or the user's membership was
+  revoked, it is discarded and the user selects again.
+
+> ⚠️ **For OpenID Connect this needs the injector authenticator in the browser flow, ahead of the cookie
+> authenticator.** Without it the binding is still enforced — the required action applies it afterwards — but the
+> user is asked first and the answer is discarded, which is confusing. A warning is logged when that happens.
+
+Because the switch lives on the required action, the required action has to be **Enabled** even in an OIDC-only
+setup, where it otherwise does nothing but record and apply the binding.
+
 ---
 
 ## ⚠️ Limitations
 
-**The choice is per client session, not per single sign-on session.** Keycloak stores the selected organization in a
-client note. Two clients in one single sign-on session can therefore end up on two different organizations. Each
-individual token still names exactly one organization, and the user chose deliberately both times, so "one
-organization per token" holds. If your requirement is stricter and means one organization for the whole single
-sign-on session, you need to pin the selection on the user session — note that doing so also removes the ability to
-switch organizations without a full logout.
-
-**Switching organizations means a new authorization request.** Because a new authorization request starts a fresh
-authentication session whose client notes are empty, a user who is a member of several organizations is asked again.
-That is the switching mechanism; no logout is required.
+**Switching organizations requires a logout when the binding is on.** With the binding off, a new authorization
+request re-prompts a multi-organization user, which is the switching mechanism and needs no logout. With it on, the
+whole point is that later requests adopt the recorded organization, so switching means ending the session.
 
 **Disabled organizations may appear on the selection screen.** The reused `select-organization.ftl` lists the user's
 memberships without filtering by enabled state. This matches Keycloak's own behaviour. A disabled organization is
