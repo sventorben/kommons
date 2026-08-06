@@ -17,6 +17,14 @@ final class UnusualLoginTimeUserWrapper {
         this.user = user;
     }
 
+    /**
+     * Whether any successful login time has been recorded for this user yet. Without one there is no baseline to
+     * compare against, so no login can be unusual.
+     */
+    boolean hasRecordedLoginTimes() {
+        return user.getAttributeStream(USER_ATTRIBUTE_USUAL_LOGIN_TIMES).findAny().isPresent();
+    }
+
     LocalTime getMinTime() {
         return user.getAttributeStream(USER_ATTRIBUTE_USUAL_LOGIN_TIMES)
             .map(LocalTime::parse)

@@ -7,12 +7,25 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
+import java.time.Clock;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 
 public final class UnusualLoginTimeConditionalAuthenticator implements ConditionalAuthenticator {
 
     private static final Logger LOG = Logger.getLogger(UnusualLoginTimeConditionalAuthenticator.class);
+
+    private final Clock clock;
+
+    public UnusualLoginTimeConditionalAuthenticator() {
+        this(Clock.systemUTC());
+    }
+
+    /**
+     * Login times are recorded in UTC, so the clock has to report UTC as well.
+     */
+    UnusualLoginTimeConditionalAuthenticator(Clock clock) {
+        this.clock = clock;
+    }
 
     @Override
     public boolean matchCondition(AuthenticationFlowContext context) {
@@ -29,10 +42,16 @@ public final class UnusualLoginTimeConditionalAuthenticator implements Condition
         return !isInRange(user, skew);
     }
 
-    private static boolean isInRange(UnusualLoginTimeUserWrapper user, int skew) {
+    private boolean isInRange(UnusualLoginTimeUserWrapper user, int skew) {
+        if (!user.hasRecordedLoginTimes()) {
+            // Nothing has been recorded yet, so no time can be unusual. Applying the skew to the MIN..MAX default
+            // would wrap it around midnight and mark almost every login as unusual.
+            return true;
+        }
+
         LocalTime adjustedStart = user.getMinTime().minusMinutes(skew);
         LocalTime adjustedEnd = user.getMaxTime().plusMinutes(skew);
-        LocalTime loginTime = LocalTime.now(ZoneOffset.UTC);
+        LocalTime loginTime = LocalTime.now(clock);
         return isInRange(adjustedStart, adjustedEnd, loginTime);
     }
 
