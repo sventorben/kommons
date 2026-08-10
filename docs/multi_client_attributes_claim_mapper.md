@@ -6,7 +6,7 @@ nav_order: 5
 
 # 🧩 Multi Client Attributes Claims Mapper
 
-The **Multi Client Attributes Claims Mapper** is a Keycloak protocol mapper that promotes **client attributes** directly into OIDC token claims. It lets you declaratively bind any number of client attributes to custom claim names using two parallel ordered lists, without writing custom code per attribute.
+The **Multi Client Attributes Claims Mapper** is a Keycloak protocol mapper that promotes **client attributes** directly into OIDC token claims. It lets you declaratively bind any number of client attributes to custom claim names using a single key/value map, without writing custom code per attribute.
 
 ---
 
@@ -14,8 +14,8 @@ The **Multi Client Attributes Claims Mapper** is a Keycloak protocol mapper that
 
 When a token is issued, this mapper:
 
-- Reads two ordered lists from its configuration: **claim names** and **client attribute names**
-- For each position in the lists, looks up the attribute value on the **requesting client**
+- Reads a map from its configuration: each **claim name** paired with the **client attribute** it takes its value from
+- For each pair, looks up the attribute value on the **requesting client**
 - Infers the appropriate JSON type from the attribute value (boolean, int, long, JSON, or String)
 - Adds each resolved attribute as a claim in the token under the configured claim name
 
@@ -47,50 +47,35 @@ Attributes missing from the client are silently skipped — no error is raised a
    | **Add to ID token**      | ✅ / as needed                                   |
    | **Add to access token**  | ✅ / as needed                                   |
    | **Add to userinfo**      | ✅ / as needed                                   |
-   | **Claim names**          | One entry per claim (see below)                  |
-   | **Client attribute names** | One entry per attribute, same order as claims  |
+   | **Claims**               | One row per claim (see below)                    |
 
 6. Click **Save**
 
 ---
 
-## 🔧 Claim Names
+## 🔧 Claims
 
 | Field              | Value                                     |
 |--------------------|-------------------------------------------|
-| **Property key**   | `kommons.client.attr.claim.names`         |
-| **Type**           | Multivalued string                        |
+| **Property key**   | `kommons.client.attr.claims`              |
+| **Type**           | Map                                       |
 
-An ordered list of claim names to add to the token. Each entry becomes the name of a claim in the issued token.
+A map of claim names to client attribute names. The **key** is the name of the claim added to the token, the
+**value** is the name of the client attribute the claim takes its value from.
 
-**Example entries:**
+**Example rows:**
 
-```
-tenant_id
-subscription_tier
-feature_flags
-```
+| Key (claim name)     | Value (client attribute name)   |
+|----------------------|---------------------------------|
+| `tenant_id`          | `my-app.tenant-id`              |
+| `subscription_tier`  | `my-app.subscription-tier`      |
+| `feature_flags`      | `my-app.feature-flags`          |
 
----
+Rows are independent, so the order they appear in does not matter. A row with only one side filled in is ignored
+when the token is issued, and saving the mapper reports it:
 
-## 🔧 Client Attribute Names
-
-| Field              | Value                                     |
-|--------------------|-------------------------------------------|
-| **Property key**   | `kommons.client.attr.attribute.names`     |
-| **Type**           | Multivalued string                        |
-
-An ordered list of client attribute names to look up on the requesting client. Position `n` in this list corresponds to position `n` in the **Claim names** list.
-
-**Example entries:**
-
-```
-my-app.tenant-id
-my-app.subscription-tier
-my-app.feature-flags
-```
-
-> ⚠️ **Both lists must have the same number of entries.** Saving the mapper with mismatched list lengths is rejected with a validation error.
+> ⚠️ Saving the mapper is rejected when a row has an empty claim name, an empty client attribute name, or when the
+> same claim name is mapped to two different client attributes.
 
 ---
 
@@ -129,7 +114,7 @@ Given a client with these attributes:
 
 And mapper configuration:
 
-| Claim names          | Client attribute names          |
+| Key (claim name)     | Value (client attribute name)   |
 |----------------------|---------------------------------|
 | `tenant_id`          | `my-app.tenant-id`              |
 | `subscription_tier`  | `my-app.subscription-tier`      |
@@ -149,8 +134,8 @@ The resulting token will contain:
 
 Check the following:
 
-- The client attribute name in the list exactly matches the attribute key on the client (case-sensitive)
-- The mapper is saved with lists of equal length
+- The client attribute name in the map exactly matches the attribute key on the client (case-sensitive)
+- Both sides of the row are filled in
 - The mapper is assigned to the correct client scope or client and the scope is requested
 
 ---
