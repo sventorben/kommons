@@ -1,1 +1,2 @@
 de.sventorben.keycloak.kommons.auth.UnusualLoginTimeEventListenerProvider
+de.sventorben.keycloak.kommons.ldap.LdapPoolMetricsEventListenerProviderFactory

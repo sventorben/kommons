@@ -1,0 +1,67 @@
+# Playground for the LDAP connection pool metrics.
+#
+#   mvn package -DskipTests
+#   docker compose -f docker-compose.ldap-metrics.yml up
+#
+#   Keycloak   http://localhost:8081        (admin / admin), realm "ldap-metrics"
+#   Metrics    http://localhost:9001/metrics
+#   LDAP       ldap://localhost:1389        (cn=admin,dc=example,dc=org / adminpassword)
+#              users live under ou=users,dc=example,dc=org
+#
+# Ports are deliberately shifted so this can run next to the regular docker-compose.yml.
+#
+#   curl -s http://localhost:9001/metrics | grep keycloak_ldap_pool
+#
+# keycloak_ldap_pool_accessible must be 1. If it is 0 the --add-exports below did not take effect,
+# or the JDK output could not be parsed; either way the other pool gauges are not to be trusted.
+services:
+
+  ldap:
+    container_name: kommons-ldap
+    image: osixia/openldap:1.5.0
+    command: ["--copy-service"]
+    environment:
+      LDAP_ORGANISATION: Kommons
+      LDAP_DOMAIN: example.org
+      LDAP_ADMIN_PASSWORD: adminpassword
+    # Seeds ou=users,dc=example,dc=org with a few inetOrgPerson entries to federate.
+    volumes:
+      - ./tools/ldap-seed.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/seed.ldif:ro
+    ports:
+      - 1389:389
+
+  keycloak:
+    container_name: kommons-keycloak-ldap-metrics
+    hostname: keycloak
+    image: quay.io/keycloak/keycloak:26.7.0
+    depends_on:
+      - ldap
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+
+      # LdapPoolManager.showStats is public but its package is not exported, so it needs exporting.
+      # --add-exports is enough; --add-opens would grant deep reflection we do not use.
+      # The JNDI pool settings are process wide and are read once, when LdapPoolManager initialises.
+      JAVA_OPTS_APPEND: >-
+        --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED
+        -Dcom.sun.jndi.ldap.connect.pool.maxsize=20
+        -Dcom.sun.jndi.ldap.connect.pool.prefsize=5
+        -Dcom.sun.jndi.ldap.connect.pool.initsize=1
+        -Dcom.sun.jndi.ldap.connect.pool.timeout=300000
+        -Dcom.sun.jndi.ldap.connect.pool.debug=fine
+    command:
+      - start-dev
+      - --metrics-enabled=true
+      - --health-enabled=true
+      # Keycloak 26 uses the double dash separator between SPI, provider and property.
+      - --spi-events-listener--kommons-ldap-pool-metrics--enabled=true
+      # Brings the realm "ldap-metrics" with a ready-made LDAP federation, so the pool can be
+      # exercised without clicking anything together first.
+      - --import-realm
+    ports:
+      - 8081:8080
+      - 9001:9000
+    volumes:
+      - ./target/kommons.jar:/opt/keycloak/providers/kommons.jar
+      - ./tools/ldap-metrics-realm:/opt/keycloak/data/import:ro
