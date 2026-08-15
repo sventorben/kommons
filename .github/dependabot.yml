@@ -18,6 +18,18 @@ updates:
     labels: ["ignore-for-release", "github-actions", "dependencies"]
 
 
+  # Maintain digest pins for container images (docker-compose.yml)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "sventorben"
+    commit-message:
+      prefix: "chore"
+    labels: ["ignore-for-release", "docker", "dependencies"]
+
+
   # Maintain dependencies for maven
   - package-ecosystem: "maven"
     directory: "/"

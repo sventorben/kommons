@@ -2,7 +2,7 @@ services:
   keycloak:
     container_name: keycloak
     hostname: keycloak
-    image: quay.io/keycloak/keycloak:26.7.2
+    image: quay.io/keycloak/keycloak:26.7.2@sha256:9d1f1b2b7261ff53c66cb1092dfcdc34a5fb77e81f9e6a6e75b8b6a795de8067
 
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin

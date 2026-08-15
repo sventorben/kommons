@@ -56,6 +56,12 @@
         <!-- For compatibility tests -->
         <keycloak.version>${version.keycloak}</keycloak.version>
 
+        <!-- Digest pin for the Keycloak test image, as "<version>@sha256:<digest>". It is
+             applied only when the requested keycloak.version matches the version recorded
+             here, so the compatibility matrix keeps resolving its other versions - and the
+             floating 'latest'/'nightly' tags - by tag. -->
+        <keycloak.image.pin>26.7.2@sha256:9d1f1b2b7261ff53c66cb1092dfcdc34a5fb77e81f9e6a6e75b8b6a795de8067</keycloak.image.pin>
+
         <version.mockito>5.24.0</version.mockito>
         <version.testcontainers>1.21.4</version.testcontainers>
     </properties>
@@ -93,6 +99,7 @@
                             <org.jboss.logging.provider>log4j2</org.jboss.logging.provider>
                             <webdriver.remote.enableTracing>false</webdriver.remote.enableTracing>
                             <keycloak.version>${keycloak.version}</keycloak.version>
+                            <keycloak.image.pin>${keycloak.image.pin}</keycloak.image.pin>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
