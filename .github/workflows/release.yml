@@ -28,13 +28,13 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
     - name: Configure Git User
       run: |
         git config user.email "actions@github.com"
         git config user.name "GitHub Actions"
     - name: Set up JDK 17
-      uses: actions/setup-java@v5.7.0
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
       with:
         distribution: 'temurin'
         java-version: 17
@@ -52,11 +52,11 @@ jobs:
     - name: Generate checksums
       run: cd target/checkout/target && sha256sum kommons.jar > SHA256SUMS
     - name: Attest build provenance
-      uses: actions/attest-build-provenance@v4
+      uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
       with:
         subject-path: target/checkout/target/kommons.jar
     - name: Release to GitHub releases
-      uses: softprops/action-gh-release@v3
+      uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3
       with:
         files: |
           target/checkout/target/kommons.jar
@@ -70,7 +70,7 @@ jobs:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     - name: Create Pull Request
       id: create-pr
-      uses: peter-evans/create-pull-request@v8
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
       with:
         commit-message: "chore(release): Prepare next version"
         delete-branch: "true"
