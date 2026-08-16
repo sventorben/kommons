@@ -56,6 +56,10 @@
         <!-- For compatibility tests -->
         <keycloak.version>${version.keycloak}</keycloak.version>
 
+        <!-- Provided by the Keycloak distribution (lib/main/io.micrometer.micrometer-core-*.jar),
+             which Quarkus binds to the /metrics endpoint. Compile-time only; never bundled. -->
+        <version.micrometer>1.16.3</version.micrometer>
+
         <version.mockito>5.23.0</version.mockito>
         <version.testcontainers>1.21.4</version.testcontainers>
     </properties>
@@ -233,6 +237,12 @@ Signed-off-by: GitHub Actions &lt;actions@github.com&gt;</scmDevelopmentCommitCo
                     <artifactId>slf4j-jboss-logmanager</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${version.micrometer}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test -->
