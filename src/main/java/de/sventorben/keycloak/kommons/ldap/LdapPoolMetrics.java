@@ -30,8 +30,6 @@ import java.util.function.ToDoubleFunction;
 final class LdapPoolMetrics implements MeterBinder {
 
     private static final String PREFIX = "keycloak.ldap.pool";
-    private static final String[] AUTH_LABELS = {"none", "simple", "digest-md5"};
-    private static final String[] CONNECTION_STATES = {"total", "idle", "busy", "expired"};
     private static final long CACHE_TTL_MILLIS = 2_000L;
 
     private final LdapConnectionPoolIntrospector introspector;
@@ -63,20 +61,20 @@ final class LdapPoolMetrics implements MeterBinder {
             "Idle timeout after which a pooled connection is closed (0 = no timeout)",
             LdapPoolSnapshot::idleTimeoutMillis);
 
-        for (String auth : AUTH_LABELS) {
+        for (AuthMechanism auth : AuthMechanism.values()) {
             Gauge.builder(PREFIX + ".identity.pools",
                     () -> snapshot().forAuth(auth).identityPools())
                 .description("Number of distinct connection-identity pools (host/port/principal combinations)")
-                .tag("authentication", auth)
+                .tag("authentication", auth.label())
                 .strongReference(true)
                 .register(registry);
 
-            for (String state : CONNECTION_STATES) {
+            for (ConnectionState state : ConnectionState.values()) {
                 Gauge.builder(PREFIX + ".connections",
-                        () -> connectionCount(auth, state))
+                        () -> state.countIn(snapshot().forAuth(auth)))
                     .description("Number of pooled LDAP connections by authentication mechanism and state")
-                    .tag("authentication", auth)
-                    .tag("state", state)
+                    .tag("authentication", auth.label())
+                    .tag("state", state.label())
                     .strongReference(true)
                     .register(registry);
             }
@@ -89,17 +87,6 @@ final class LdapPoolMetrics implements MeterBinder {
             .description(description)
             .strongReference(true)
             .register(registry);
-    }
-
-    private double connectionCount(String auth, String state) {
-        AuthPoolStats stats = snapshot().forAuth(auth);
-        return switch (state) {
-            case "total" -> stats.total();
-            case "idle" -> stats.idle();
-            case "busy" -> stats.busy();
-            case "expired" -> stats.expired();
-            default -> 0;
-        };
     }
 
     private LdapPoolSnapshot snapshot() {
