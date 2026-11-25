@@ -16,6 +16,11 @@ updates:
     commit-message:
       prefix: "chore"
     labels: ["ignore-for-release", "github-actions", "dependencies"]
+    groups:
+      # init and analyze must run the same codeql-action version
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
 
 
   # Maintain digest pins for container images (docker-compose.yml)
